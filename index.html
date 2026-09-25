@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CIFRA</title>
+  <meta name="theme-color" content="#0c0d0b" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0c0d0b;
+      --surface: #141512;
+      --elevated: #1c1d1a;
+      --fg: #eceae4;
+      --muted: #8b8e86;
+      --subtle: #5e615a;
+      --accent: #c5cdd4;
+      --accent-fg: #0c0d0b;
+      --ok: #8faf9a;
+      --danger: #c47a6a;
+      --border: rgb(236 234 228 / 0.12);
+      --shadow: 0 0 0 1px rgb(236 234 228 / 0.08);
+      --shadow-h: 0 0 0 1px rgb(236 234 228 / 0.16);
+      --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+      --font-display: "Fraunces", "Times New Roman", serif;
+      --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --ease: cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    * { box-sizing: border-box; }
+    html, body { min-height: 100dvh; margin: 0; background: var(--bg); color: var(--fg); }
+    html { -webkit-font-smoothing: antialiased; }
+    body {
+      font-family: var(--font-sans);
+      background-image: radial-gradient(1100px 520px at 50% -8%, #161714, transparent 62%);
+    }
+    h1, h2 { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.03em; text-wrap: balance; margin: 0; }
+    button { font-family: inherit; cursor: pointer; }
+    button:disabled { cursor: default; opacity: 0.4; }
+    .wrap { max-width: 32rem; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; min-height: 100dvh; display: flex; flex-direction: column; }
+    .kicker { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--subtle); }
+    .title { font-size: 2.25rem; line-height: 1.1; margin-top: 0.25rem; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+    .date { margin: 0.75rem 0 0; font-size: 0.875rem; color: var(--muted); }
+    .rail { display: flex; gap: 0.5rem; margin-top: 1.25rem; list-style: none; padding: 0; }
+    .rail li { flex: 1; }
+    .rail span { display: block; height: 6px; border-radius: 999px; background: rgb(236 234 228 / 0.15); }
+    .rail .on { background: var(--ok); }
+    .rail .now { background: var(--accent); }
+    .meta { display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.75rem; color: var(--subtle); font-variant-numeric: tabular-nums; }
+    .card { background: var(--surface); border-radius: var(--radius-xl); box-shadow: var(--shadow); padding: 1.25rem 1.5rem; }
+    .card.pad { padding: 1.5rem; }
+    .hint { display: flex; gap: 0.75rem; background: var(--elevated); border-radius: var(--radius-lg); padding: 0.75rem 1rem; font-size: 0.875rem; line-height: 1.5; color: var(--muted); }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      height: 48px; min-height: 48px; padding: 0 1.25rem; width: 100%;
+      border: 0; border-radius: var(--radius-md); background: var(--accent); color: var(--accent-fg);
+      font-size: 0.875rem; font-weight: 500; letter-spacing: 0.04em;
+      transition: transform 150ms var(--ease), background 150ms var(--ease);
+    }
+    .btn:hover { background: var(--fg); }
+    .btn:active { transform: scale(0.96); }
+    .btn.ghost { background: transparent; color: var(--fg); box-shadow: var(--shadow); }
+    .btn.quiet { background: transparent; color: var(--muted); }
+    .field { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    label { font-size: 0.875rem; color: var(--muted); }
+    input[type="text"] {
+      height: 48px; width: 100%; border: 0; border-radius: var(--radius-md);
+      background: var(--elevated); color: var(--fg); padding: 0 1rem;
+      font-family: var(--font-mono); font-size: 1rem; letter-spacing: 0.18em; text-transform: uppercase;
+      box-shadow: var(--shadow); outline: none;
+    }
+    input::placeholder { color: var(--subtle); text-transform: none; letter-spacing: normal; }
+    .wrong { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; list-style: none; padding: 0; }
+    .wrong li { font-family: var(--font-mono); font-size: 0.75rem; color: var(--danger); text-decoration: line-through; padding: 0.25rem 0.625rem; }
+    .bits { display: flex; flex-direction: column; gap: 0.75rem; }
+    .bit-row { display: flex; align-items: center; gap: 0.75rem; }
+    .bit-row b { font-family: var(--font-display); width: 1.25rem; color: var(--ok); font-weight: 500; }
+    .cells { display: flex; flex: 1; gap: 4px; min-width: 0; }
+    .cells i { flex: 1; height: 32px; border-radius: 4px; background: rgb(236 234 228 / 0.12); }
+    .cells i.on { background: var(--fg); }
+    .morse { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem 1.25rem; }
+    .morse .g { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+    .morse .s { display: flex; height: 32px; align-items: center; gap: 4px; }
+    .dot { width: 10px; height: 10px; border-radius: 999px; background: var(--fg); }
+    .dash { width: 24px; height: 10px; border-radius: 999px; background: var(--fg); }
+    .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+    .chip { min-width: 3rem; display: flex; flex-direction: column; align-items: center; gap: 0.35rem; background: var(--elevated); border-radius: var(--radius-md); padding: 0.625rem 0.75rem; }
+    .chip .t { font-family: var(--font-mono); font-size: 1.125rem; }
+    .chip .l { font-family: var(--font-display); font-size: 0.875rem; color: var(--ok); }
+    .braille { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; }
+    .braille .g { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+    .braille .c { font-family: var(--font-mono); font-size: 3rem; line-height: 1; }
+    .nato { list-style: none; padding: 0; margin: 0; }
+    .nato li { display: flex; justify-content: space-between; gap: 1rem; padding: 0.375rem 0; border-bottom: 1px solid var(--border); font-family: var(--font-display); font-size: 1.25rem; }
+    .nato li:last-child { border: 0; }
+    .rev { font-family: var(--font-display); text-align: center; font-size: 2.5rem; letter-spacing: 0.35em; margin: 0; }
+    .answer { font-size: 2.25rem; margin-top: 0.75rem; }
+    .okline { display: inline-flex; align-items: center; gap: 0.4rem; font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ok); }
+    .next { background: var(--elevated); border-radius: var(--radius-xl); padding: 1.25rem; margin-top: 1.25rem; }
+    .next p { font-family: var(--font-display); font-size: 1.25rem; line-height: 1.3; margin: 0.5rem 0 0; }
+    .log { background: var(--surface); border-radius: var(--radius-xl); box-shadow: var(--shadow); margin-top: 1.25rem; padding: 0 1.25rem; list-style: none; }
+    .log li { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding: 0.875rem 0; border-bottom: 1px solid var(--border); }
+    .log li:last-child { border: 0; }
+    .log .w { font-family: var(--font-display); font-size: 1.125rem; }
+    .log .k { font-size: 0.75rem; color: var(--subtle); }
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.25rem; }
+    .stat { background: var(--elevated); border-radius: var(--radius-lg); padding: 0.75rem 1rem; }
+    .stat p { margin: 0; font-size: 0.75rem; color: var(--subtle); }
+    .stat b { display: block; font-family: var(--font-display); font-size: 1.5rem; font-weight: 500; margin-top: 0.25rem; font-variant-numeric: tabular-nums; }
+    .center { text-align: center; }
+    .muted { color: var(--muted); font-size: 0.875rem; line-height: 1.5; }
+    .table { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.5rem; max-height: 16rem; overflow: auto; }
+    .trow { display: flex; justify-content: space-between; gap: 0.75rem; border-bottom: 1px solid var(--border); padding: 0.35rem 0; }
+    .trow .l { font-family: var(--font-display); }
+    .trow .r { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); }
+    .help { font-size: 0.75rem; color: var(--subtle); text-align: center; margin-top: 1.5rem; }
+    .enter { animation: rise 400ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .shake { animation: shake 0.42s var(--ease); }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(12px); filter: blur(3px); }
+      to { opacity: 1; transform: none; filter: none; }
+    }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .enter, .shake { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="app"></div>
+  <script>
+const WORDS = ["CLAVE","PUERTA","NORTE","FUEGO","NOCHE","RUTA","LUNA","VIENTO","TIERRA","CIELO","BARCO","PUENTE","FAROL","SELVA","MONTE","PLAYA","TESORO","ENIGMA","CIFRA","SECRETO","MENSAJE","CODIGO","OESTE","BRUMA","NIEBLA","TRUENO","BOSQUE","VALLE","CUMBRE","SENDERO","HUELLA","PISTA","RASTRO","LLAVE","COFRE","ANCLA","TIMON","PROA","ISLA","COSTA","GOLFO","NIEVE","HIELO","LLUVIA","CALOR","SOMBRA","LLAMA","BRASA","CENIZA","POLVO","ARENA","ROCA","MINA","PLATA","COBRE","HIERRO","ACERO","CRISTAL","VIDRIO","PAPEL","TINTA","PLUMA","LIBRO","PAGINA","VERSO","POEMA","CANTO","RITMO","DANZA","BAILE","GRITO","VUELO","HALCON","LOBO","ZORRO","CIERVO","MAREA","CORAL","PERLA","CONCHA","TORRE","MURO","FOSO","REINA","CORONA","CETRO","TRONO","REINO","PACTO","SELLO","FIRMA","ESPADA","ESCUDO","LANZA","ARCO","FLECHA","YELMO","CAMINO","JINETE","CABALLO","AURORA","OCASO","AVISO","MARCA","RADIO","ANTENA","ONDA","PULSO","CABLE","ENLACE","BRUJULA","CASTILLO","RELATO","CUENTO","MISTERIO","MAGO","HECHIZO","RITUAL","TEMPLO","ALTAR","FARO","ALBA","NUBE","RAYO","HUMO","ORO","NOTA","PASO","NIDO","OLAS","MAR"];
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const MORSE = {A:".-",B:"-...",C:"-.-.",D:"-..",E:".",F:"..-.",G:"--.",H:"....",I:"..",J:".---",K:"-.-",L:".-..",M:"--",N:"-.",O:"---",P:".--.",Q:"--.-",R:".-.",S:"...",T:"-",U:"..-",V:"...-",W:".--",X:"-..-",Y:"-.--",Z:"--.."};
+const NATO = {A:"Alfa",B:"Bravo",C:"Charlie",D:"Delta",E:"Echo",F:"Foxtrot",G:"Golf",H:"Hotel",I:"India",J:"Juliet",K:"Kilo",L:"Lima",M:"Mike",N:"November",O:"Oscar",P:"Papa",Q:"Quebec",R:"Romeo",S:"Sierra",T:"Tango",U:"Uniform",V:"Victor",W:"Whiskey",X:"X-ray",Y:"Yankee",Z:"Zulu"};
+const BRAILLE = {A:"⠁",B:"⠃",C:"⠉",D:"⠙",E:"⠑",F:"⠋",G:"⠛",H:"⠓",I:"⠊",J:"⠚",K:"⠅",L:"⠇",M:"⠍",N:"⠝",O:"⠕",P:"⠏",Q:"⠟",R:"⠗",S:"⠎",T:"⠞",U:"⠥",V:"⠧",W:"⠺",X:"⠭",Y:"⠽",Z:"⠵"};
+const TAP_ROWS = [["A","B","C","D","E"],["F","G","H","I","J"],["L","M","N","O","P"],["Q","R","S","T","U"],["V","W","X","Y","Z"]];
+const TAP_POS = {};
+TAP_ROWS.forEach((row, r) => row.forEach((ch, c) => { TAP_POS[ch] = [r + 1, c + 1]; }));
+TAP_POS.K = TAP_POS.C;
+const LABELS = {binary:"Binario",morse:"Morse",hex:"Hexadecimal",ascii:"ASCII",octal:"Octal",caesar:"César",atbash:"Atbash",a1z26:"A1Z26",nato:"Alfabeto NATO",tap:"Código tap",braille:"Braille",reverse:"Inverso"};
+const HINTS = {
+  binary:"El primer envío siempre llega en ceros y unos.",
+  morse:"Ahora, el telégrafo: puntos y rayas.",
+  hex:"Dieciséis signos bastan para escribir cada letra.",
+  ascii:"Cada letra esconde un número de la tabla.",
+  octal:"Base ocho. Tres cifras por cada letra.",
+  caesar:"El alfabeto se deslizó. Todas las letras, el mismo salto.",
+  atbash:"La primera letra del alfabeto se esconde en la última.",
+  a1z26:"A vale uno. Z vale veintiséis.",
+  nato:"Habla como un piloto: una palabra por letra.",
+  tap:"Golpes en una cuadrícula de cinco por cinco.",
+  braille:"Seis puntos en relieve. Léelo con los ojos.",
+  reverse:"Dale la vuelta al mensaje."
+};
+const SLOT3 = ["hex","ascii","octal"];
+const SLOT4 = ["caesar","atbash"];
+const SLOT5 = ["a1z26","nato"];
+const SLOT6 = ["braille","tap","reverse"];
+const SAVE_KEY = "cifra:save";
+
+function caesarChar(ch, shift) {
+  const i = ALPHABET.indexOf(ch);
+  return i < 0 ? ch : ALPHABET[(i + shift + 26) % 26];
+}
+function atbashChar(ch) {
+  const i = ALPHABET.indexOf(ch);
+  return i < 0 ? ch : ALPHABET[25 - i];
+}
+function encodeWord(kind, word, shift = 0) {
+  const letters = [...word];
+  switch (kind) {
+    case "binary": return letters.map(ch => ch.charCodeAt(0).toString(2).padStart(8, "0"));
+    case "morse": return letters.map(ch => MORSE[ch] || "");
+    case "hex": return letters.map(ch => ch.charCodeAt(0).toString(16).toUpperCase());
+    case "ascii": return letters.map(ch => String(ch.charCodeAt(0)));
+    case "octal": return letters.map(ch => ch.charCodeAt(0).toString(8).padStart(3, "0"));
+    case "caesar": return letters.map(ch => caesarChar(ch, shift));
+    case "atbash": return letters.map(ch => atbashChar(ch));
+    case "a1z26": return letters.map(ch => String(ALPHABET.indexOf(ch) + 1));
+    case "nato": return letters.map(ch => NATO[ch] || ch);
+    case "tap": return letters.map(ch => TAP_POS[ch].join(","));
+    case "braille": return letters.map(ch => BRAILLE[ch] || ch);
+    case "reverse": return [word.split("").reverse().join("")];
+  }
+}
+function normalizeGuess(raw) {
+  return raw.normalize("NFD").replace(/\p{M}/gu, "").replace(/[^a-zA-Z]/g, "").toUpperCase();
+}
+function hashDate(iso) {
+  let h = 2166136261;
+  for (let i = 0; i < iso.length; i++) { h ^= iso.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+function mulberry32(seed) {
+  let a = seed | 0;
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function pick(rng, arr) { return arr[Math.floor(rng() * arr.length)]; }
+function localDateIso(d = new Date()) {
+  return `\( {d.getFullYear()}- \){String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+function addDaysIso(iso, days) {
+  const [y, m, d] = iso.split("-").map(Number);
+  const dt = new Date(y, m - 1, d);
+  dt.setDate(dt.getDate() + days);
+  return localDateIso(dt);
+}
+function msUntilMidnight(now = new Date()) {
+  const next = new Date(now);
+  next.setHours(24, 0, 0, 0);
+  return Math.max(0, next.getTime() - now.getTime());
+}
+function formatCountdown(ms) {
+  const total = Math.floor(ms / 1000);
+  return `${Math.floor(total / 3600)}h ${String(Math.floor((total % 3600) / 60)).padStart(2, "0")}m`;
+}
+function formatLongDate(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Intl.DateTimeFormat("es", { day: "numeric", month: "long", year: "numeric" }).format(new Date(y, m - 1, d));
+}
+function dailyPuzzles(iso) {
+  const rng = mulberry32(hashDate("cifra:" + iso));
+  const kinds = ["binary", "morse", pick(rng, SLOT3), pick(rng, SLOT4), pick(rng, SLOT5), pick(rng, SLOT6)];
+  const pool = WORDS.filter(w => w.length >= 4 && w.length <= 7).slice();
+  const words = [];
+  while (words.length < 6 && pool.length) words.push(pool.splice(Math.floor(rng() * pool.length), 1)[0]);
+  const shift = 1 + Math.floor(rng() * 12);
+  return kinds.map((kind, i) => {
+    const answer = words[i];
+    const usedShift = kind === "caesar" ? shift : 0;
+    const next = kinds[i + 1] || null;
+    return { kind, answer, tokens: encodeWord(kind, answer, usedShift), hint: HINTS[kind], nextHint: next ? HINTS[next] : null, label: LABELS[kind], shift: kind === "caesar" ? usedShift : undefined };
+  });
+}
+function emptyDay(date, extra = {}) {
+  return { version: 1, date, index: 0, solved: Array(6).fill(false), attempts: Array(6).fill(0), wrong: Array.from({length:6}, () => []), tableUnlocked: Array(6).fill(false), awaitingAdvance: false, lastCompletedDate: null, streak: 0, bestStreak: 0, seenBrief: false, ...extra };
+}
+function loadSave() {
+  const today = localDateIso();
+  const defaults = emptyDay(today);
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return defaults;
+    const s = { ...defaults, ...JSON.parse(raw) };
+    if (s.date !== today) {
+      const yesterday = addDaysIso(today, -1);
+      const kept = s.lastCompletedDate === yesterday || s.lastCompletedDate === today ? s.streak : 0;
+      return emptyDay(today, { lastCompletedDate: s.lastCompletedDate, streak: kept, bestStreak: s.bestStreak, seenBrief: s.seenBrief });
+    }
+    return s;
+  } catch { return defaults; }
+}
+function writeSave(state) {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch {}
+}
+
+let ctx = null;
+function chime(ok) {
+  try {
+    ctx = ctx || new AudioContext();
+    if (ctx.state === "suspended") ctx.resume();
+    const t = ctx.currentTime;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "sine";
+    o.frequency.value = ok ? 528 : 164;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(ok ? 0.05 : 0.06, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + (ok ? 0.22 : 0.16));
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t + 0.36);
+    if (ok) {
+      const o2 = ctx.createOscillator();
+      const g2 = ctx.createGain();
+      o2.type = "sine"; o2.frequency.value = 792;
+      g2.gain.setValueAtTime(0.0001, t + 0.06);
+      g2.gain.exponentialRampToValueAtTime(0.035, t + 0.08);
+      g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.32);
+      o2.connect(g2); g2.connect(ctx.destination);
+      o2.start(t + 0.06); o2.stop(t + 0.34);
+    }
+  } catch {}
+}
+
+let save = loadSave();
+let puzzles = dailyPuzzles(save.date);
+let showTable = false;
+let shake = false;
+
+function persist(partial) {
+  save = { ...save, ...partial };
+  writeSave(save);
+}
+function isComplete() { return save.solved.length === 6 && save.solved.every(Boolean); }
+
+function submit(raw) {
+  const n = normalizeGuess(raw);
+  if (!n) return "empty";
+  const i = save.index;
+  const p = puzzles[i];
+  if (!p || save.solved[i]) return "empty";
+  if (save.wrong[i].includes(n)) return "dup";
+  if (n === p.answer) {
+    chime(true);
+    const solved = save.solved.map((v, k) => k === i ? true : v);
+    let streak = save.streak, best = save.bestStreak, last = save.lastCompletedDate;
+    if (i === 5 && last !== save.date) {
+      const y = addDaysIso(save.date, -1);
+      streak = last === y ? streak + 1 : 1;
+      best = Math.max(best, streak);
+      last = save.date;
+    }
+    persist({ solved, awaitingAdvance: true, streak, bestStreak: best, lastCompletedDate: last });
+    return "ok";
+  }
+  chime(false);
+  const attempts = save.attempts.map((v, k) => k === i ? v + 1 : v);
+  const wrong = save.wrong.map((v, k) => k === i ? [...v, n] : v);
+  persist({ attempts, wrong });
+  return "bad";
+}
+
+function prettyMorse(code) { return [...code].map(s => s === "." ? "·" : "−").join(" "); }
+function alphabetRows(fn) {
+  return ALPHABET.split("").map(ch => `<div class="trow"><span class="l">\( {ch}</span><span class="r"> \){fn(ch)}</span></div>`).join("");
+}
+function tableHtml(kind, shift) {
+  if (kind === "binary") return `<div class="table">${alphabetRows(ch => ch.charCodeAt(0).toString(2).padStart(8,"0"))}</div>`;
+  if (kind === "morse") return `<div class="table">${alphabetRows(ch => prettyMorse(MORSE[ch]))}</div>`;
+  if (kind === "hex") return `<div class="table">${alphabetRows(ch => ch.charCodeAt(0).toString(16).toUpperCase())}</div>`;
+  if (kind === "ascii") return `<div class="table">${alphabetRows(ch => ch.charCodeAt(0))}</div>`;
+  if (kind === "octal") return `<div cla
