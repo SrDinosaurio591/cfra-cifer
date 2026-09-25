@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CIFRA</title>
-  <meta name="theme-color" content="#0c0d0b" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <meta name="description" content="Seis cifrados al día. Empieza en binario. A medianoche, se renueva.">
+  <meta name="theme-color" content="#0c0d0b">
   <style>
     :root {
       --bg: #0c0d0b;
@@ -20,331 +18,692 @@
       --accent-fg: #0c0d0b;
       --ok: #8faf9a;
       --danger: #c47a6a;
-      --border: rgb(236 234 228 / 0.12);
-      --shadow: 0 0 0 1px rgb(236 234 228 / 0.08);
-      --shadow-h: 0 0 0 1px rgb(236 234 228 / 0.16);
-      --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
-      --font-display: "Fraunces", "Times New Roman", serif;
-      --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
-      --radius-sm: 8px;
-      --radius-md: 12px;
-      --radius-lg: 16px;
-      --radius-xl: 24px;
-      --ease: cubic-bezier(0.23, 1, 0.32, 1);
+      --border: rgba(236, 234, 228, 0.12);
+      --shadow: 0 0 0 1px rgba(236, 234, 228, 0.08);
+      --font: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+      --display: "Fraunces", Georgia, "Times New Roman", serif;
+      --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
     }
     * { box-sizing: border-box; }
-    html, body { min-height: 100dvh; margin: 0; background: var(--bg); color: var(--fg); }
-    html { -webkit-font-smoothing: antialiased; }
+    html, body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: #0c0d0b;
+      color: #eceae4;
+    }
     body {
-      font-family: var(--font-sans);
+      font-family: var(--font);
       background-image: radial-gradient(1100px 520px at 50% -8%, #161714, transparent 62%);
     }
-    h1, h2 { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.03em; text-wrap: balance; margin: 0; }
-    button { font-family: inherit; cursor: pointer; }
-    button:disabled { cursor: default; opacity: 0.4; }
-    .wrap { max-width: 32rem; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; min-height: 100dvh; display: flex; flex-direction: column; }
-    .kicker { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--subtle); }
+    #app {
+      max-width: 32rem;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 4rem;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+    h1, h2 {
+      font-family: var(--display);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      margin: 0;
+    }
+    button {
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .kicker {
+      font-family: var(--mono);
+      font-size: 0.6875rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      margin: 0;
+    }
     .title { font-size: 2.25rem; line-height: 1.1; margin-top: 0.25rem; }
-    .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+    .row { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
     .date { margin: 0.75rem 0 0; font-size: 0.875rem; color: var(--muted); }
-    .rail { display: flex; gap: 0.5rem; margin-top: 1.25rem; list-style: none; padding: 0; }
+    .rail { display: flex; gap: 0.5rem; margin: 1.25rem 0 0; padding: 0; list-style: none; }
     .rail li { flex: 1; }
-    .rail span { display: block; height: 6px; border-radius: 999px; background: rgb(236 234 228 / 0.15); }
-    .rail .on { background: var(--ok); }
-    .rail .now { background: var(--accent); }
+    .rail i { display: block; height: 6px; border-radius: 999px; background: rgba(236,234,228,0.15); }
+    .rail i.on { background: var(--ok); }
+    .rail i.now { background: var(--accent); }
     .meta { display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.75rem; color: var(--subtle); font-variant-numeric: tabular-nums; }
-    .card { background: var(--surface); border-radius: var(--radius-xl); box-shadow: var(--shadow); padding: 1.25rem 1.5rem; }
-    .card.pad { padding: 1.5rem; }
-    .hint { display: flex; gap: 0.75rem; background: var(--elevated); border-radius: var(--radius-lg); padding: 0.75rem 1rem; font-size: 0.875rem; line-height: 1.5; color: var(--muted); }
+    .card {
+      background: var(--surface);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 1.5rem 1.25rem;
+      margin-top: 1.5rem;
+    }
+    .hint {
+      background: var(--elevated);
+      border-radius: 16px;
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      color: var(--muted);
+      margin-top: 1.5rem;
+    }
     .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-      height: 48px; min-height: 48px; padding: 0 1.25rem; width: 100%;
-      border: 0; border-radius: var(--radius-md); background: var(--accent); color: var(--accent-fg);
-      font-size: 0.875rem; font-weight: 500; letter-spacing: 0.04em;
-      transition: transform 150ms var(--ease), background 150ms var(--ease);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 48px;
+      width: 100%;
+      margin-top: 1rem;
+      border: 0;
+      border-radius: 12px;
+      background: var(--accent);
+      color: var(--accent-fg);
+      font-size: 0.875rem;
+      font-weight: 500;
     }
     .btn:hover { background: var(--fg); }
-    .btn:active { transform: scale(0.96); }
     .btn.ghost { background: transparent; color: var(--fg); box-shadow: var(--shadow); }
     .btn.quiet { background: transparent; color: var(--muted); }
-    .field { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
-    label { font-size: 0.875rem; color: var(--muted); }
+    label { display: block; font-size: 0.875rem; color: var(--muted); margin: 1.5rem 0 0.5rem; }
     input[type="text"] {
-      height: 48px; width: 100%; border: 0; border-radius: var(--radius-md);
-      background: var(--elevated); color: var(--fg); padding: 0 1rem;
-      font-family: var(--font-mono); font-size: 1rem; letter-spacing: 0.18em; text-transform: uppercase;
-      box-shadow: var(--shadow); outline: none;
+      height: 48px;
+      width: 100%;
+      border: 0;
+      border-radius: 12px;
+      background: var(--elevated);
+      color: var(--fg);
+      padding: 0 1rem;
+      font-family: var(--mono);
+      font-size: 1rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      box-shadow: var(--shadow);
+      outline: none;
     }
-    input::placeholder { color: var(--subtle); text-transform: none; letter-spacing: normal; }
-    .wrong { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; list-style: none; padding: 0; }
-    .wrong li { font-family: var(--font-mono); font-size: 0.75rem; color: var(--danger); text-decoration: line-through; padding: 0.25rem 0.625rem; }
+    input::placeholder { color: var(--subtle); letter-spacing: normal; text-transform: none; }
+    .wrong { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0 0; padding: 0; list-style: none; }
+    .wrong li { font-family: var(--mono); font-size: 0.75rem; color: var(--danger); text-decoration: line-through; }
     .bits { display: flex; flex-direction: column; gap: 0.75rem; }
     .bit-row { display: flex; align-items: center; gap: 0.75rem; }
-    .bit-row b { font-family: var(--font-display); width: 1.25rem; color: var(--ok); font-weight: 500; }
+    .bit-row b { font-family: var(--display); width: 1.25rem; color: var(--ok); font-weight: 500; }
     .cells { display: flex; flex: 1; gap: 4px; min-width: 0; }
-    .cells i { flex: 1; height: 32px; border-radius: 4px; background: rgb(236 234 228 / 0.12); }
-    .cells i.on { background: var(--fg); }
+    .cells span { flex: 1; height: 32px; border-radius: 4px; background: rgba(236,234,228,0.12); }
+    .cells span.on { background: var(--fg); }
     .morse { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem 1.25rem; }
     .morse .g { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
     .morse .s { display: flex; height: 32px; align-items: center; gap: 4px; }
     .dot { width: 10px; height: 10px; border-radius: 999px; background: var(--fg); }
     .dash { width: 24px; height: 10px; border-radius: 999px; background: var(--fg); }
     .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
-    .chip { min-width: 3rem; display: flex; flex-direction: column; align-items: center; gap: 0.35rem; background: var(--elevated); border-radius: var(--radius-md); padding: 0.625rem 0.75rem; }
-    .chip .t { font-family: var(--font-mono); font-size: 1.125rem; }
-    .chip .l { font-family: var(--font-display); font-size: 0.875rem; color: var(--ok); }
+    .chip {
+      min-width: 3rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      background: var(--elevated);
+      border-radius: 12px;
+      padding: 0.625rem 0.75rem;
+    }
+    .chip .t { font-family: var(--mono); font-size: 1.125rem; }
+    .chip .l { font-family: var(--display); font-size: 0.875rem; color: var(--ok); }
     .braille { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; }
-    .braille .g { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
-    .braille .c { font-family: var(--font-mono); font-size: 3rem; line-height: 1; }
+    .braille .c { font-family: var(--mono); font-size: 3rem; line-height: 1; }
     .nato { list-style: none; padding: 0; margin: 0; }
-    .nato li { display: flex; justify-content: space-between; gap: 1rem; padding: 0.375rem 0; border-bottom: 1px solid var(--border); font-family: var(--font-display); font-size: 1.25rem; }
+    .nato li {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.375rem 0;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--display);
+      font-size: 1.25rem;
+    }
     .nato li:last-child { border: 0; }
-    .rev { font-family: var(--font-display); text-align: center; font-size: 2.5rem; letter-spacing: 0.35em; margin: 0; }
+    .rev { font-family: var(--display); text-align: center; font-size: 2.25rem; letter-spacing: 0.28em; margin: 0; }
     .answer { font-size: 2.25rem; margin-top: 0.75rem; }
-    .okline { display: inline-flex; align-items: center; gap: 0.4rem; font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ok); }
-    .next { background: var(--elevated); border-radius: var(--radius-xl); padding: 1.25rem; margin-top: 1.25rem; }
-    .next p { font-family: var(--font-display); font-size: 1.25rem; line-height: 1.3; margin: 0.5rem 0 0; }
-    .log { background: var(--surface); border-radius: var(--radius-xl); box-shadow: var(--shadow); margin-top: 1.25rem; padding: 0 1.25rem; list-style: none; }
-    .log li { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding: 0.875rem 0; border-bottom: 1px solid var(--border); }
+    .okline {
+      font-family: var(--mono);
+      font-size: 0.6875rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ok);
+      margin: 0;
+    }
+    .next {
+      background: var(--elevated);
+      border-radius: 24px;
+      padding: 1.25rem;
+      margin-top: 1.25rem;
+    }
+    .next p { font-family: var(--display); font-size: 1.25rem; line-height: 1.3; margin: 0.5rem 0 0; }
+    .log { background: var(--surface); border-radius: 24px; box-shadow: var(--shadow); margin: 1.25rem 0 0; padding: 0 1.25rem; list-style: none; }
+    .log li { display: flex; justify-content: space-between; gap: 1rem; padding: 0.875rem 0; border-bottom: 1px solid var(--border); }
     .log li:last-child { border: 0; }
-    .log .w { font-family: var(--font-display); font-size: 1.125rem; }
+    .log .w { font-family: var(--display); font-size: 1.125rem; }
     .log .k { font-size: 0.75rem; color: var(--subtle); }
     .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.25rem; }
-    .stat { background: var(--elevated); border-radius: var(--radius-lg); padding: 0.75rem 1rem; }
+    .stat { background: var(--elevated); border-radius: 16px; padding: 0.75rem 1rem; }
     .stat p { margin: 0; font-size: 0.75rem; color: var(--subtle); }
-    .stat b { display: block; font-family: var(--font-display); font-size: 1.5rem; font-weight: 500; margin-top: 0.25rem; font-variant-numeric: tabular-nums; }
+    .stat b { display: block; font-family: var(--display); font-size: 1.5rem; font-weight: 500; margin-top: 0.25rem; }
     .center { text-align: center; }
     .muted { color: var(--muted); font-size: 0.875rem; line-height: 1.5; }
     .table { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.5rem; max-height: 16rem; overflow: auto; }
     .trow { display: flex; justify-content: space-between; gap: 0.75rem; border-bottom: 1px solid var(--border); padding: 0.35rem 0; }
-    .trow .l { font-family: var(--font-display); }
-    .trow .r { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); }
+    .trow .l { font-family: var(--display); }
+    .trow .r { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
     .help { font-size: 0.75rem; color: var(--subtle); text-align: center; margin-top: 1.5rem; }
-    .enter { animation: rise 400ms cubic-bezier(0.22, 1, 0.36, 1) both; }
-    .shake { animation: shake 0.42s var(--ease); }
-    @keyframes rise {
-      from { opacity: 0; transform: translateY(12px); filter: blur(3px); }
-      to { opacity: 1; transform: none; filter: none; }
-    }
-    @keyframes shake {
-      0%,100% { transform: translateX(0); }
-      20% { transform: translateX(-6px); }
-      40% { transform: translateX(6px); }
-      60% { transform: translateX(-4px); }
-      80% { transform: translateX(4px); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .enter, .shake { animation: none; }
-    }
+    .err { color: var(--danger); font-size: 0.9rem; padding: 1rem; }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
   </style>
 </head>
 <body>
-  <div class="wrap" id="app"></div>
+  <div id="app">
+    <p class="kicker">Transmisión diaria</p>
+    <h1 class="title">CIFRA</h1>
+    <p class="muted">Cargando…</p>
+  </div>
+  <noscript>
+    <p class="err" style="max-width:32rem;margin:2rem auto;padding:0 1.25rem">CIFRA necesita JavaScript. Actívalo y recarga la página.</p>
+  </noscript>
   <script>
-const WORDS = ["CLAVE","PUERTA","NORTE","FUEGO","NOCHE","RUTA","LUNA","VIENTO","TIERRA","CIELO","BARCO","PUENTE","FAROL","SELVA","MONTE","PLAYA","TESORO","ENIGMA","CIFRA","SECRETO","MENSAJE","CODIGO","OESTE","BRUMA","NIEBLA","TRUENO","BOSQUE","VALLE","CUMBRE","SENDERO","HUELLA","PISTA","RASTRO","LLAVE","COFRE","ANCLA","TIMON","PROA","ISLA","COSTA","GOLFO","NIEVE","HIELO","LLUVIA","CALOR","SOMBRA","LLAMA","BRASA","CENIZA","POLVO","ARENA","ROCA","MINA","PLATA","COBRE","HIERRO","ACERO","CRISTAL","VIDRIO","PAPEL","TINTA","PLUMA","LIBRO","PAGINA","VERSO","POEMA","CANTO","RITMO","DANZA","BAILE","GRITO","VUELO","HALCON","LOBO","ZORRO","CIERVO","MAREA","CORAL","PERLA","CONCHA","TORRE","MURO","FOSO","REINA","CORONA","CETRO","TRONO","REINO","PACTO","SELLO","FIRMA","ESPADA","ESCUDO","LANZA","ARCO","FLECHA","YELMO","CAMINO","JINETE","CABALLO","AURORA","OCASO","AVISO","MARCA","RADIO","ANTENA","ONDA","PULSO","CABLE","ENLACE","BRUJULA","CASTILLO","RELATO","CUENTO","MISTERIO","MAGO","HECHIZO","RITUAL","TEMPLO","ALTAR","FARO","ALBA","NUBE","RAYO","HUMO","ORO","NOTA","PASO","NIDO","OLAS","MAR"];
-const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const MORSE = {A:".-",B:"-...",C:"-.-.",D:"-..",E:".",F:"..-.",G:"--.",H:"....",I:"..",J:".---",K:"-.-",L:".-..",M:"--",N:"-.",O:"---",P:".--.",Q:"--.-",R:".-.",S:"...",T:"-",U:"..-",V:"...-",W:".--",X:"-..-",Y:"-.--",Z:"--.."};
-const NATO = {A:"Alfa",B:"Bravo",C:"Charlie",D:"Delta",E:"Echo",F:"Foxtrot",G:"Golf",H:"Hotel",I:"India",J:"Juliet",K:"Kilo",L:"Lima",M:"Mike",N:"November",O:"Oscar",P:"Papa",Q:"Quebec",R:"Romeo",S:"Sierra",T:"Tango",U:"Uniform",V:"Victor",W:"Whiskey",X:"X-ray",Y:"Yankee",Z:"Zulu"};
-const BRAILLE = {A:"⠁",B:"⠃",C:"⠉",D:"⠙",E:"⠑",F:"⠋",G:"⠛",H:"⠓",I:"⠊",J:"⠚",K:"⠅",L:"⠇",M:"⠍",N:"⠝",O:"⠕",P:"⠏",Q:"⠟",R:"⠗",S:"⠎",T:"⠞",U:"⠥",V:"⠧",W:"⠺",X:"⠭",Y:"⠽",Z:"⠵"};
-const TAP_ROWS = [["A","B","C","D","E"],["F","G","H","I","J"],["L","M","N","O","P"],["Q","R","S","T","U"],["V","W","X","Y","Z"]];
-const TAP_POS = {};
-TAP_ROWS.forEach((row, r) => row.forEach((ch, c) => { TAP_POS[ch] = [r + 1, c + 1]; }));
-TAP_POS.K = TAP_POS.C;
-const LABELS = {binary:"Binario",morse:"Morse",hex:"Hexadecimal",ascii:"ASCII",octal:"Octal",caesar:"César",atbash:"Atbash",a1z26:"A1Z26",nato:"Alfabeto NATO",tap:"Código tap",braille:"Braille",reverse:"Inverso"};
-const HINTS = {
-  binary:"El primer envío siempre llega en ceros y unos.",
-  morse:"Ahora, el telégrafo: puntos y rayas.",
-  hex:"Dieciséis signos bastan para escribir cada letra.",
-  ascii:"Cada letra esconde un número de la tabla.",
-  octal:"Base ocho. Tres cifras por cada letra.",
-  caesar:"El alfabeto se deslizó. Todas las letras, el mismo salto.",
-  atbash:"La primera letra del alfabeto se esconde en la última.",
-  a1z26:"A vale uno. Z vale veintiséis.",
-  nato:"Habla como un piloto: una palabra por letra.",
-  tap:"Golpes en una cuadrícula de cinco por cinco.",
-  braille:"Seis puntos en relieve. Léelo con los ojos.",
-  reverse:"Dale la vuelta al mensaje."
-};
-const SLOT3 = ["hex","ascii","octal"];
-const SLOT4 = ["caesar","atbash"];
-const SLOT5 = ["a1z26","nato"];
-const SLOT6 = ["braille","tap","reverse"];
-const SAVE_KEY = "cifra:save";
+(function () {
+  "use strict";
 
-function caesarChar(ch, shift) {
-  const i = ALPHABET.indexOf(ch);
-  return i < 0 ? ch : ALPHABET[(i + shift + 26) % 26];
-}
-function atbashChar(ch) {
-  const i = ALPHABET.indexOf(ch);
-  return i < 0 ? ch : ALPHABET[25 - i];
-}
-function encodeWord(kind, word, shift = 0) {
-  const letters = [...word];
-  switch (kind) {
-    case "binary": return letters.map(ch => ch.charCodeAt(0).toString(2).padStart(8, "0"));
-    case "morse": return letters.map(ch => MORSE[ch] || "");
-    case "hex": return letters.map(ch => ch.charCodeAt(0).toString(16).toUpperCase());
-    case "ascii": return letters.map(ch => String(ch.charCodeAt(0)));
-    case "octal": return letters.map(ch => ch.charCodeAt(0).toString(8).padStart(3, "0"));
-    case "caesar": return letters.map(ch => caesarChar(ch, shift));
-    case "atbash": return letters.map(ch => atbashChar(ch));
-    case "a1z26": return letters.map(ch => String(ALPHABET.indexOf(ch) + 1));
-    case "nato": return letters.map(ch => NATO[ch] || ch);
-    case "tap": return letters.map(ch => TAP_POS[ch].join(","));
-    case "braille": return letters.map(ch => BRAILLE[ch] || ch);
-    case "reverse": return [word.split("").reverse().join("")];
+  var WORDS = ["CLAVE","PUERTA","NORTE","FUEGO","NOCHE","RUTA","LUNA","VIENTO","TIERRA","CIELO","BARCO","PUENTE","FAROL","SELVA","MONTE","PLAYA","TESORO","ENIGMA","CIFRA","SECRETO","MENSAJE","CODIGO","OESTE","BRUMA","NIEBLA","TRUENO","BOSQUE","VALLE","CUMBRE","SENDERO","HUELLA","PISTA","RASTRO","LLAVE","COFRE","ANCLA","TIMON","PROA","ISLA","COSTA","GOLFO","NIEVE","HIELO","LLUVIA","CALOR","SOMBRA","LLAMA","BRASA","CENIZA","POLVO","ARENA","ROCA","MINA","PLATA","COBRE","HIERRO","ACERO","CRISTAL","VIDRIO","PAPEL","TINTA","PLUMA","LIBRO","PAGINA","VERSO","POEMA","CANTO","RITMO","DANZA","BAILE","GRITO","VUELO","HALCON","LOBO","ZORRO","CIERVO","MAREA","CORAL","PERLA","CONCHA","TORRE","MURO","FOSO","REINA","CORONA","CETRO","TRONO","REINO","PACTO","SELLO","FIRMA","ESPADA","ESCUDO","LANZA","ARCO","FLECHA","YELMO","CAMINO","JINETE","CABALLO","AURORA","OCASO","AVISO","MARCA","RADIO","ANTENA","ONDA","PULSO","CABLE","ENLACE","BRUJULA","RELATO","CUENTO","MAGO","HECHIZO","RITUAL","TEMPLO","ALTAR","FARO","ALBA","NUBE","RAYO","HUMO","ORO","NOTA","PASO","NIDO","OLAS"];
+  var ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  var MORSE = {A:".-",B:"-...",C:"-.-.",D:"-..",E:".",F:"..-.",G:"--.",H:"....",I:"..",J:".---",K:"-.-",L:".-..",M:"--",N:"-.",O:"---",P:".--.",Q:"--.-",R:".-.",S:"...",T:"-",U:"..-",V:"...-",W:".--",X:"-..-",Y:"-.--",Z:"--.."};
+  var NATO = {A:"Alfa",B:"Bravo",C:"Charlie",D:"Delta",E:"Echo",F:"Foxtrot",G:"Golf",H:"Hotel",I:"India",J:"Juliet",K:"Kilo",L:"Lima",M:"Mike",N:"November",O:"Oscar",P:"Papa",Q:"Quebec",R:"Romeo",S:"Sierra",T:"Tango",U:"Uniform",V:"Victor",W:"Whiskey",X:"X-ray",Y:"Yankee",Z:"Zulu"};
+  var BRAILLE = {A:"⠁",B:"⠃",C:"⠉",D:"⠙",E:"⠑",F:"⠋",G:"⠛",H:"⠓",I:"⠊",J:"⠚",K:"⠅",L:"⠇",M:"⠍",N:"⠝",O:"⠕",P:"⠏",Q:"⠟",R:"⠗",S:"⠎",T:"⠞",U:"⠥",V:"⠧",W:"⠺",X:"⠭",Y:"⠽",Z:"⠵"};
+  var TAP_ROWS = [["A","B","C","D","E"],["F","G","H","I","J"],["L","M","N","O","P"],["Q","R","S","T","U"],["V","W","X","Y","Z"]];
+  var TAP_POS = {};
+  var r, c;
+  for (r = 0; r < TAP_ROWS.length; r++) {
+    for (c = 0; c < TAP_ROWS[r].length; c++) TAP_POS[TAP_ROWS[r][c]] = [r + 1, c + 1];
   }
-}
-function normalizeGuess(raw) {
-  return raw.normalize("NFD").replace(/\p{M}/gu, "").replace(/[^a-zA-Z]/g, "").toUpperCase();
-}
-function hashDate(iso) {
-  let h = 2166136261;
-  for (let i = 0; i < iso.length; i++) { h ^= iso.charCodeAt(i); h = Math.imul(h, 16777619); }
-  return h >>> 0;
-}
-function mulberry32(seed) {
-  let a = seed | 0;
-  return () => {
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  TAP_POS.K = TAP_POS.C;
+  var LABELS = {binary:"Binario",morse:"Morse",hex:"Hexadecimal",ascii:"ASCII",octal:"Octal",caesar:"César",atbash:"Atbash",a1z26:"A1Z26",nato:"Alfabeto NATO",tap:"Código tap",braille:"Braille",reverse:"Inverso"};
+  var HINTS = {
+    binary:"El primer envío siempre llega en ceros y unos.",
+    morse:"Ahora, el telégrafo: puntos y rayas.",
+    hex:"Dieciséis signos bastan para escribir cada letra.",
+    ascii:"Cada letra esconde un número de la tabla.",
+    octal:"Base ocho. Tres cifras por cada letra.",
+    caesar:"El alfabeto se deslizó. Todas las letras, el mismo salto.",
+    atbash:"La primera letra del alfabeto se esconde en la última.",
+    a1z26:"A vale uno. Z vale veintiséis.",
+    nato:"Habla como un piloto: una palabra por letra.",
+    tap:"Golpes en una cuadrícula de cinco por cinco.",
+    braille:"Seis puntos en relieve. Léelo con los ojos.",
+    reverse:"Dale la vuelta al mensaje."
   };
-}
-function pick(rng, arr) { return arr[Math.floor(rng() * arr.length)]; }
-function localDateIso(d = new Date()) {
-  return `\( {d.getFullYear()}- \){String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-}
-function addDaysIso(iso, days) {
-  const [y, m, d] = iso.split("-").map(Number);
-  const dt = new Date(y, m - 1, d);
-  dt.setDate(dt.getDate() + days);
-  return localDateIso(dt);
-}
-function msUntilMidnight(now = new Date()) {
-  const next = new Date(now);
-  next.setHours(24, 0, 0, 0);
-  return Math.max(0, next.getTime() - now.getTime());
-}
-function formatCountdown(ms) {
-  const total = Math.floor(ms / 1000);
-  return `${Math.floor(total / 3600)}h ${String(Math.floor((total % 3600) / 60)).padStart(2, "0")}m`;
-}
-function formatLongDate(iso) {
-  const [y, m, d] = iso.split("-").map(Number);
-  return new Intl.DateTimeFormat("es", { day: "numeric", month: "long", year: "numeric" }).format(new Date(y, m - 1, d));
-}
-function dailyPuzzles(iso) {
-  const rng = mulberry32(hashDate("cifra:" + iso));
-  const kinds = ["binary", "morse", pick(rng, SLOT3), pick(rng, SLOT4), pick(rng, SLOT5), pick(rng, SLOT6)];
-  const pool = WORDS.filter(w => w.length >= 4 && w.length <= 7).slice();
-  const words = [];
-  while (words.length < 6 && pool.length) words.push(pool.splice(Math.floor(rng() * pool.length), 1)[0]);
-  const shift = 1 + Math.floor(rng() * 12);
-  return kinds.map((kind, i) => {
-    const answer = words[i];
-    const usedShift = kind === "caesar" ? shift : 0;
-    const next = kinds[i + 1] || null;
-    return { kind, answer, tokens: encodeWord(kind, answer, usedShift), hint: HINTS[kind], nextHint: next ? HINTS[next] : null, label: LABELS[kind], shift: kind === "caesar" ? usedShift : undefined };
-  });
-}
-function emptyDay(date, extra = {}) {
-  return { version: 1, date, index: 0, solved: Array(6).fill(false), attempts: Array(6).fill(0), wrong: Array.from({length:6}, () => []), tableUnlocked: Array(6).fill(false), awaitingAdvance: false, lastCompletedDate: null, streak: 0, bestStreak: 0, seenBrief: false, ...extra };
-}
-function loadSave() {
-  const today = localDateIso();
-  const defaults = emptyDay(today);
-  try {
-    const raw = localStorage.getItem(SAVE_KEY);
-    if (!raw) return defaults;
-    const s = { ...defaults, ...JSON.parse(raw) };
-    if (s.date !== today) {
-      const yesterday = addDaysIso(today, -1);
-      const kept = s.lastCompletedDate === yesterday || s.lastCompletedDate === today ? s.streak : 0;
-      return emptyDay(today, { lastCompletedDate: s.lastCompletedDate, streak: kept, bestStreak: s.bestStreak, seenBrief: s.seenBrief });
-    }
-    return s;
-  } catch { return defaults; }
-}
-function writeSave(state) {
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch {}
-}
+  var SLOT3 = ["hex","ascii","octal"];
+  var SLOT4 = ["caesar","atbash"];
+  var SLOT5 = ["a1z26","nato"];
+  var SLOT6 = ["braille","tap","reverse"];
+  var SAVE_KEY = "cifra:save";
+  var STAGE = 6;
 
-let ctx = null;
-function chime(ok) {
-  try {
-    ctx = ctx || new AudioContext();
-    if (ctx.state === "suspended") ctx.resume();
-    const t = ctx.currentTime;
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.type = "sine";
-    o.frequency.value = ok ? 528 : 164;
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(ok ? 0.05 : 0.06, t + 0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + (ok ? 0.22 : 0.16));
-    o.connect(g); g.connect(ctx.destination);
-    o.start(t); o.stop(t + 0.36);
-    if (ok) {
-      const o2 = ctx.createOscillator();
-      const g2 = ctx.createGain();
-      o2.type = "sine"; o2.frequency.value = 792;
-      g2.gain.setValueAtTime(0.0001, t + 0.06);
-      g2.gain.exponentialRampToValueAtTime(0.035, t + 0.08);
-      g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.32);
-      o2.connect(g2); g2.connect(ctx.destination);
-      o2.start(t + 0.06); o2.stop(t + 0.34);
-    }
-  } catch {}
-}
-
-let save = loadSave();
-let puzzles = dailyPuzzles(save.date);
-let showTable = false;
-let shake = false;
-
-function persist(partial) {
-  save = { ...save, ...partial };
-  writeSave(save);
-}
-function isComplete() { return save.solved.length === 6 && save.solved.every(Boolean); }
-
-function submit(raw) {
-  const n = normalizeGuess(raw);
-  if (!n) return "empty";
-  const i = save.index;
-  const p = puzzles[i];
-  if (!p || save.solved[i]) return "empty";
-  if (save.wrong[i].includes(n)) return "dup";
-  if (n === p.answer) {
-    chime(true);
-    const solved = save.solved.map((v, k) => k === i ? true : v);
-    let streak = save.streak, best = save.bestStreak, last = save.lastCompletedDate;
-    if (i === 5 && last !== save.date) {
-      const y = addDaysIso(save.date, -1);
-      streak = last === y ? streak + 1 : 1;
-      best = Math.max(best, streak);
-      last = save.date;
-    }
-    persist({ solved, awaitingAdvance: true, streak, bestStreak: best, lastCompletedDate: last });
-    return "ok";
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "\u0026amp;")
+      .replace(/</g, "\u0026lt;")
+      .replace(/>/g, "\u0026gt;")
+      .replace(/"/g, "\u0026quot;");
   }
-  chime(false);
-  const attempts = save.attempts.map((v, k) => k === i ? v + 1 : v);
-  const wrong = save.wrong.map((v, k) => k === i ? [...v, n] : v);
-  persist({ attempts, wrong });
-  return "bad";
-}
+  function caesarChar(ch, shift) {
+    var i = ALPHABET.indexOf(ch);
+    return i < 0 ? ch : ALPHABET[(i + shift + 26) % 26];
+  }
+  function atbashChar(ch) {
+    var i = ALPHABET.indexOf(ch);
+    return i < 0 ? ch : ALPHABET[25 - i];
+  }
+  function encodeWord(kind, word, shift) {
+    var letters = String(word).split("");
+    var i, ch, pos, out = [];
+    shift = shift || 0;
+    for (i = 0; i < letters.length; i++) {
+      ch = letters[i];
+      if (kind === "binary") out.push(ch.charCodeAt(0).toString(2).padStart(8, "0"));
+      else if (kind === "morse") out.push(MORSE[ch] || "");
+      else if (kind === "hex") out.push(ch.charCodeAt(0).toString(16).toUpperCase());
+      else if (kind === "ascii") out.push(String(ch.charCodeAt(0)));
+      else if (kind === "octal") out.push(ch.charCodeAt(0).toString(8).padStart(3, "0"));
+      else if (kind === "caesar") out.push(caesarChar(ch, shift));
+      else if (kind === "atbash") out.push(atbashChar(ch));
+      else if (kind === "a1z26") out.push(String(ALPHABET.indexOf(ch) + 1));
+      else if (kind === "nato") out.push(NATO[ch] || ch);
+      else if (kind === "tap") {
+        pos = TAP_POS[ch] || [1, 1];
+        out.push(pos[0] + "," + pos[1]);
+      } else if (kind === "braille") out.push(BRAILLE[ch] || ch);
+    }
+    if (kind === "reverse") return [String(word).split("").reverse().join("")];
+    return out;
+  }
+  function normalizeGuess(raw) {
+    return String(raw || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z]/g, "")
+      .toUpperCase();
+  }
+  function hashDate(iso) {
+    var h = 2166136261, i;
+    for (i = 0; i < iso.length; i++) {
+      h ^= iso.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function mulberry32(seed) {
+    var a = seed | 0;
+    return function () {
+      a = (a + 0x6d2b79f5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function pick(rng, arr) {
+    return arr[Math.floor(rng() * arr.length)];
+  }
+  function pad(n) { return n < 10 ? "0" + n : String(n); }
+  function localDateIso(d) {
+    d = d || new Date();
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  }
+  function addDaysIso(iso, days) {
+    var p = iso.split("-");
+    var dt = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    dt.setDate(dt.getDate() + days);
+    return localDateIso(dt);
+  }
+  function msUntilMidnight(now) {
+    now = now || new Date();
+    var next = new Date(now.getTime());
+    next.setHours(24, 0, 0, 0);
+    return Math.max(0, next.getTime() - now.getTime());
+  }
+  function formatCountdown(ms) {
+    var total = Math.floor(ms / 1000);
+    return Math.floor(total / 3600) + "h " + pad(Math.floor((total % 3600) / 60)) + "m";
+  }
+  function formatLongDate(iso) {
+    var p = iso.split("-");
+    try {
+      return new Intl.DateTimeFormat("es", { day: "numeric", month: "long", year: "numeric" })
+        .format(new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2])));
+    } catch (e) {
+      return iso;
+    }
+  }
+  function dailyPuzzles(iso) {
+    var rng = mulberry32(hashDate("cifra:" + iso));
+    var kinds = ["binary", "morse", pick(rng, SLOT3), pick(rng, SLOT4), pick(rng, SLOT5), pick(rng, SLOT6)];
+    var pool = [];
+    var i, w;
+    for (i = 0; i < WORDS.length; i++) {
+      w = WORDS[i];
+      if (w.length >= 4 && w.length <= 7) pool.push(w);
+    }
+    var words = [];
+    while (words.length < STAGE && pool.length) {
+      words.push(pool.splice(Math.floor(rng() * pool.length), 1)[0]);
+    }
+    var shift = 1 + Math.floor(rng() * 12);
+    return kinds.map(function (kind, idx) {
+      var answer = words[idx] || "CLAVE";
+      var usedShift = kind === "caesar" ? shift : 0;
+      var next = kinds[idx + 1] || null;
+      return {
+        kind: kind,
+        answer: answer,
+        tokens: encodeWord(kind, answer, usedShift),
+        hint: HINTS[kind],
+        nextHint: next ? HINTS[next] : null,
+        label: LABELS[kind],
+        shift: kind === "caesar" ? usedShift : undefined
+      };
+    });
+  }
+  function emptyDay(date, extra) {
+    var s = {
+      version: 1,
+      date: date,
+      index: 0,
+      solved: [false, false, false, false, false, false],
+      attempts: [0, 0, 0, 0, 0, 0],
+      wrong: [[], [], [], [], [], []],
+      tableUnlocked: [false, false, false, false, false, false],
+      awaitingAdvance: false,
+      lastCompletedDate: null,
+      streak: 0,
+      bestStreak: 0,
+      seenBrief: false
+    };
+    var k;
+    extra = extra || {};
+    for (k in extra) if (Object.prototype.hasOwnProperty.call(extra, k)) s[k] = extra[k];
+    return s;
+  }
+  function padArr(arr, fill) {
+    var next = [];
+    var i;
+    for (i = 0; i < STAGE; i++) next[i] = fill;
+    if (arr && arr.length) {
+      for (i = 0; i < STAGE && i < arr.length; i++) next[i] = arr[i];
+    }
+    return next;
+  }
+  function loadSave() {
+    var today = localDateIso();
+    var defaults = emptyDay(today);
+    try {
+      var raw = localStorage.getItem(SAVE_KEY);
+      if (!raw) return defaults;
+      var parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object") return defaults;
+      var s = emptyDay(today, parsed);
+      if (s.date !== today) {
+        var yesterday = addDaysIso(today, -1);
+        var kept = (s.lastCompletedDate === yesterday || s.lastCompletedDate === today) ? (s.streak || 0) : 0;
+        return emptyDay(today, {
+          lastCompletedDate: s.lastCompletedDate || null,
+          streak: kept,
+          bestStreak: s.bestStreak || 0,
+          seenBrief: !!s.seenBrief
+        });
+      }
+      s.solved = padArr(s.solved, false);
+      s.attempts = padArr(s.attempts, 0);
+      s.wrong = padArr(s.wrong, []);
+      s.tableUnlocked = padArr(s.tableUnlocked, false);
+      var i;
+      for (i = 0; i < STAGE; i++) {
+        if (!Array.isArray(s.wrong[i])) s.wrong[i] = [];
+        s.solved[i] = !!s.solved[i];
+        s.attempts[i] = Number(s.attempts[i]) || 0;
+        s.tableUnlocked[i] = !!s.tableUnlocked[i];
+      }
+      s.index = Math.max(0, Math.min(STAGE - 1, Number(s.index) || 0));
+      return s;
+    } catch (e) {
+      return defaults;
+    }
+  }
+  function writeSave(state) {
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
 
-function prettyMorse(code) { return [...code].map(s => s === "." ? "·" : "−").join(" "); }
-function alphabetRows(fn) {
-  return ALPHABET.split("").map(ch => `<div class="trow"><span class="l">\( {ch}</span><span class="r"> \){fn(ch)}</span></div>`).join("");
-}
-function tableHtml(kind, shift) {
-  if (kind === "binary") return `<div class="table">${alphabetRows(ch => ch.charCodeAt(0).toString(2).padStart(8,"0"))}</div>`;
-  if (kind === "morse") return `<div class="table">${alphabetRows(ch => prettyMorse(MORSE[ch]))}</div>`;
-  if (kind === "hex") return `<div class="table">${alphabetRows(ch => ch.charCodeAt(0).toString(16).toUpperCase())}</div>`;
-  if (kind === "ascii") return `<div class="table">${alphabetRows(ch => ch.charCodeAt(0))}</div>`;
-  if (kind === "octal") return `<div cla
+  var audioCtx = null;
+  function chime(ok) {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      audioCtx = audioCtx || new AC();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      var t = audioCtx.currentTime;
+      var o = audioCtx.createOscillator();
+      var g = audioCtx.createGain();
+      o.type = "sine";
+      o.frequency.value = ok ? 528 : 164;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(ok ? 0.05 : 0.06, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + (ok ? 0.22 : 0.16));
+      o.connect(g);
+      g.connect(audioCtx.destination);
+      o.start(t);
+      o.stop(t + 0.36);
+    } catch (e) {}
+  }
+
+  var save = loadSave();
+  var puzzles = dailyPuzzles(save.date);
+  var showTable = false;
+  var root = document.getElementById("app");
+
+  function persist(partial) {
+    var k;
+    for (k in partial) if (Object.prototype.hasOwnProperty.call(partial, k)) save[k] = partial[k];
+    writeSave(save);
+  }
+  function isComplete() {
+    var i;
+    for (i = 0; i < STAGE; i++) if (!save.solved[i]) return false;
+    return true;
+  }
+  function submit(raw) {
+    var n = normalizeGuess(raw);
+    if (!n) return "empty";
+    var i = save.index;
+    var p = puzzles[i];
+    if (!p || save.solved[i]) return "empty";
+    if (!save.wrong[i]) save.wrong[i] = [];
+    if (save.wrong[i].indexOf(n) >= 0) return "dup";
+    if (n === p.answer) {
+      chime(true);
+      var solved = save.solved.slice();
+      solved[i] = true;
+      var streak = save.streak;
+      var best = save.bestStreak;
+      var last = save.lastCompletedDate;
+      if (i === STAGE - 1 && last !== save.date) {
+        var y = addDaysIso(save.date, -1);
+        streak = last === y ? streak + 1 : 1;
+        best = Math.max(best || 0, streak);
+        last = save.date;
+      }
+      persist({ solved: solved, awaitingAdvance: true, streak: streak, bestStreak: best, lastCompletedDate: last });
+      return "ok";
+    }
+    chime(false);
+    var attempts = save.attempts.slice();
+    var wrong = save.wrong.map(function (v) { return v.slice(); });
+    attempts[i] = (attempts[i] || 0) + 1;
+    wrong[i] = (wrong[i] || []).concat([n]);
+    persist({ attempts: attempts, wrong: wrong });
+    return "bad";
+  }
+  function prettyMorse(code) {
+    return String(code).split("").map(function (s) { return s === "." ? "·" : "−"; }).join(" ");
+  }
+  function alphabetRows(fn) {
+    return ALPHABET.split("").map(function (ch) {
+      return '<div class="trow"><span class="l">' + esc(ch) + '</span><span class="r">' + esc(fn(ch)) + "</span></div>";
+    }).join("");
+  }
+  function tableHtml(kind, shift) {
+    if (kind === "binary") return '<div class="table">' + alphabetRows(function (ch) { return ch.charCodeAt(0).toString(2).padStart(8, "0"); }) + "</div>";
+    if (kind === "morse") return '<div class="table">' + alphabetRows(function (ch) { return prettyMorse(MORSE[ch]); }) + "</div>";
+    if (kind === "hex") return '<div class="table">' + alphabetRows(function (ch) { return ch.charCodeAt(0).toString(16).toUpperCase(); }) + "</div>";
+    if (kind === "ascii") return '<div class="table">' + alphabetRows(function (ch) { return String(ch.charCodeAt(0)); }) + "</div>";
+    if (kind === "octal") return '<div class="table">' + alphabetRows(function (ch) { return ch.charCodeAt(0).toString(8).padStart(3, "0"); }) + "</div>";
+    if (kind === "caesar") return '<p class="muted">Cada letra avanza el mismo número de puestos.' + (shift ? " Tras tres fallos: el salto de hoy es " + shift + "." : "") + "</p>";
+    if (kind === "atbash") return '<div class="table">' + alphabetRows(function (ch) { return ALPHABET[25 - ALPHABET.indexOf(ch)]; }) + "</div>";
+    if (kind === "a1z26") return '<div class="table">' + alphabetRows(function (ch) { return String(ALPHABET.indexOf(ch) + 1); }) + "</div>";
+    if (kind === "nato") return '<div class="table">' + alphabetRows(function (ch) { return NATO[ch]; }) + "</div>";
+    if (kind === "braille") return '<div class="table">' + alphabetRows(function (ch) { return BRAILLE[ch]; }) + "</div>";
+    if (kind === "reverse") return '<p class="muted">Lee el bloque de derecha a izquierda.</p>';
+    if (kind === "tap") {
+      var head = "<tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>";
+      var body = TAP_ROWS.map(function (row, rr) {
+        return "<tr><th>" + (rr + 1) + "</th>" + row.map(function (ch) {
+          return "<td>" + ch + (ch === "C" ? "/K" : "") + "</td>";
+        }).join("") + "</tr>";
+      }).join("");
+      return '<div style="overflow:auto"><table style="width:100%;text-align:center;font-family:var(--mono);font-size:0.875rem">' + head + body + '</table><p class="help">Cada par es fila, columna.</p></div>';
+    }
+    return "";
+  }
+  function displayHtml(p, revealed) {
+    var a = p.answer || "";
+    var html = "";
+    var i, bits, code, s;
+    if (p.kind === "binary") {
+      html = '<div class="bits">';
+      for (i = 0; i < p.tokens.length; i++) {
+        bits = String(p.tokens[i]).split("");
+        html += '<div class="bit-row">' + (revealed ? "<b>" + esc(a.charAt(i)) + "</b>" : "") + '<div class="cells">';
+        bits.forEach(function (b) { html += '<span class="' + (b === "1" ? "on" : "") + '"></span>'; });
+        html += "</div></div>";
+      }
+      return html + "</div>";
+    }
+    if (p.kind === "morse") {
+      html = '<div class="morse">';
+      for (i = 0; i < p.tokens.length; i++) {
+        code = String(p.tokens[i]);
+        html += '<div class="g"><div class="s">';
+        for (s = 0; s < code.length; s++) html += code.charAt(s) === "." ? '<span class="dot"></span>' : '<span class="dash"></span>';
+        html += "</div>" + (revealed ? '<span class="l">' + esc(a.charAt(i)) + "</span>" : "") + "</div>";
+      }
+      return html + "</div>";
+    }
+    if (p.kind === "braille") {
+      html = '<div class="braille">';
+      for (i = 0; i < p.tokens.length; i++) {
+        html += '<div class="g"><span class="c">' + esc(p.tokens[i]) + "</span>" + (revealed ? '<span class="l">' + esc(a.charAt(i)) + "</span>" : "") + "</div>";
+      }
+      return html + "</div>";
+    }
+    if (p.kind === "nato") {
+      html = '<ul class="nato">';
+      for (i = 0; i < p.tokens.length; i++) {
+        html += "<li><span>" + esc(p.tokens[i]) + "</span>" + (revealed ? '<span class="k">' + esc(a.charAt(i)) + "</span>" : "") + "</li>";
+      }
+      return html + "</ul>";
+    }
+    if (p.kind === "reverse") return '<p class="rev">' + esc(p.tokens[0] || "") + "</p>";
+    html = '<div class="chips">';
+    for (i = 0; i < p.tokens.length; i++) {
+      html += '<div class="chip"><span class="t">' + esc(p.tokens[i]) + "</span>" + (revealed ? '<span class="l">' + esc(a.charAt(i)) + "</span>" : "") + "</div>";
+    }
+    return html + "</div>";
+  }
+
+  function render() {
+    try {
+      var today = localDateIso();
+      if (save.date !== today) {
+        save = loadSave();
+        puzzles = dailyPuzzles(save.date);
+      }
+      var remaining = formatCountdown(msUntilMidnight());
+      var complete = isComplete();
+      var i = save.index;
+      var p = puzzles[i];
+      var rail = "";
+      var k;
+      for (k = 0; k < STAGE; k++) {
+        rail += "<li><i class=\"" + (save.solved[k] ? "on" : (!complete && k === i ? "now" : "")) + "\"></i></li>";
+      }
+      var header =
+        "<header><div class=\"row\"><div><p class=\"kicker\">Transmisión diaria</p><h1 class=\"title\">CIFRA</h1></div>" +
+        "<div style=\"text-align:right\"><p style=\"font-family:var(--mono);margin:0\">" + (save.streak > 0 ? save.streak + "d" : "—") +
+        "</p><p class=\"help\" style=\"margin:0.15rem 0 0\">racha</p></div></div>" +
+        "<p class=\"date\">" + esc(formatLongDate(save.date)) + "</p>" +
+        "<ol class=\"rail\">" + rail + "</ol>" +
+        "<div class=\"meta\"><span>" + (complete ? "Seis de seis" : "Señal " + (i + 1) + " de 6") + "</span><span>" + remaining + "</span></div></header>";
+
+      var body = "";
+      if (!save.seenBrief) {
+        body = "<section class=\"card\"><h2>Cómo se juega</h2><p class=\"muted\">Cada día llegan seis mensajes cifrados. El primero siempre es binario. Al descifrar uno recibes una pista para el siguiente. A medianoche, la transmisión se renueva.</p>" +
+          "<button class=\"btn\" type=\"button\" id=\"act-brief\">Recibir primera señal</button></section>";
+      } else if (complete && !save.awaitingAdvance) {
+        var items = "";
+        for (k = 0; k < puzzles.length; k++) {
+          items += "<li><div><div class=\"w\">" + esc(puzzles[k].answer) + "</div><div class=\"k\">" + esc(puzzles[k].label) + "</div></div><span class=\"k\">" + (k + 1) + "</span></li>";
+        }
+        body = "<section class=\"card center\"><p class=\"kicker\" style=\"color:var(--ok)\">Transmisión completa</p>" +
+          "<h2 style=\"font-size:1.875rem;margin-top:0.75rem\">Seis señales recuperadas</h2>" +
+          "<p class=\"muted\">Vuelve a medianoche. El primer envío de mañana será otra vez binario.</p></section>" +
+          "<ol class=\"log\">" + items + "</ol>" +
+          "<div class=\"stats\"><div class=\"stat\"><p>Racha</p><b>" + esc(String(save.streak || 0)) + "</b></div><div class=\"stat\"><p>Mejor racha</p><b>" + esc(String(save.bestStreak || 0)) + "</b></div></div>" +
+          "<p class=\"help\">Próxima transmisión en " + remaining + "</p>";
+      } else if (p && save.solved[i] && save.awaitingAdvance) {
+        var last = i >= STAGE - 1;
+        body = "<section class=\"card\"><p class=\"okline\">Descifrado · " + esc(p.label) + "</p>" +
+          "<p class=\"answer\">" + esc(p.answer) + "</p><div style=\"margin-top:1.5rem\">" + displayHtml(p, true) + "</div></section>" +
+          (p.nextHint ? "<div class=\"next\"><p class=\"kicker\">Pista para la siguiente</p><p>" + esc(p.nextHint) + "</p></div>" : "") +
+          "<button class=\"btn\" type=\"button\" id=\"act-next\">" + (last ? "Ver transmisión" : "Siguiente señal") + "</button>";
+      } else if (p) {
+        var attempts = save.attempts[i] || 0;
+        var canTable = attempts >= 3 || save.tableUnlocked[i];
+        var wrong = save.wrong[i] || [];
+        var wrongHtml = "";
+        if (wrong.length) {
+          wrongHtml = "<ul class=\"wrong\">" + wrong.map(function (w) { return "<li>" + esc(w) + "</li>"; }).join("") + "</ul>";
+        }
+        var help = "";
+        if (canTable) {
+          if (save.tableUnlocked[i]) {
+            help = "<button class=\"btn quiet\" type=\"button\" id=\"act-toggle\">" + (showTable ? "Ocultar tabla" : "Mostrar tabla") + "</button>";
+            if (showTable) help += "<div class=\"card\"><p style=\"font-family:var(--display);margin:0 0 0.75rem\">" + esc(p.label) + "</p>" + tableHtml(p.kind, p.shift) + "</div>";
+          } else {
+            help = "<button class=\"btn ghost\" type=\"button\" id=\"act-unlock\">Consultar tabla</button>";
+          }
+        } else if (attempts > 0) {
+          var left = Math.max(0, 3 - attempts);
+          help = "<p class=\"help\">Tabla de ayuda tras " + left + (left === 1 ? " fallo" : " fallos") + " más</p>";
+        }
+        body = "<aside class=\"hint\">" + esc(p.hint) + "</aside>" +
+          "<section class=\"card\"><p class=\"kicker\" style=\"margin-bottom:1.25rem\">" + (i === 0 ? "Primera señal · binario" : "Señal " + (i + 1)) + "</p>" +
+          displayHtml(p, false) + "</section>" +
+          "<form id=\"guess-form\"><label for=\"guess\">Traduce el mensaje</label>" +
+          "<input id=\"guess\" type=\"text\" autocomplete=\"off\" autocapitalize=\"characters\" spellcheck=\"false\" placeholder=\"UNA PALABRA\">" +
+          "<button class=\"btn\" type=\"submit\">Descifrar</button></form>" + wrongHtml + help;
+      }
+
+      root.innerHTML = header + body;
+
+      var form = document.getElementById("guess-form");
+      var input = document.getElementById("guess");
+      if (form && input) {
+        input.focus();
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          submit(input.value);
+          showTable = false;
+          render();
+        });
+      }
+      var brief = document.getElementById("act-brief");
+      if (brief) brief.addEventListener("click", function () { persist({ seenBrief: true }); render(); });
+      var next = document.getElementById("act-next");
+      if (next) next.addEventListener("click", function () {
+        if (save.index >= STAGE - 1) persist({ awaitingAdvance: false });
+        else persist({ index: save.index + 1, awaitingAdvance: false });
+        showTable = false;
+        render();
+      });
+      var unlock = document.getElementById("act-unlock");
+      if (unlock) unlock.addEventListener("click", function () {
+        var t = save.tableUnlocked.slice();
+        t[save.index] = true;
+        persist({ tableUnlocked: t });
+        showTable = true;
+        render();
+      });
+      var toggle = document.getElementById("act-toggle");
+      if (toggle) toggle.addEventListener("click", function () { showTable = !showTable; render(); });
+    } catch (err) {
+      root.innerHTML = "<h1 class=\"title\">CIFRA</h1><p class=\"err\">No se pudo cargar el juego. Recarga la página.</p><p class=\"muted\">" + esc(err && err.message ? err.message : err) + "</p>";
+    }
+  }
+
+  window.onerror = function (msg) {
+    if (root && !root.querySelector(".title")) {
+      root.innerHTML = "<h1 class=\"title\">CIFRA</h1><p class=\"err\">" + esc(msg) + "</p>";
+    }
+  };
+
+  render();
+  setInterval(function () {
+    if (document.activeElement && document.activeElement.id === "guess") return;
+    render();
+  }, 30000);
+})();
+  </script>
+</body>
+</html>
